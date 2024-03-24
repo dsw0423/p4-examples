@@ -1,0 +1,5 @@
+match 0x2b action operation_add 
+match 0x2d action operation_sub 
+match 0x26 action operation_and 
+match 0x7c action operation_or 
+match 0x5e action operation_xor 
