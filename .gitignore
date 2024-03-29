@@ -1,0 +1,8 @@
+
+*.bak
+*.log
+*.so
+*.c
+*.o
+pipeline
+*.h

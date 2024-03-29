@@ -1,0 +1,2 @@
+match 0 action set_direction dir 0
+match 1 action set_direction dir 1
