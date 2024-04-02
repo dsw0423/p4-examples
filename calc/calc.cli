@@ -1,0 +1,19 @@
+# Example command line:
+#	./build/examples/dpdk-pipeline -l0-1 -- -s ./examples/pipeline/examples/l2fwd.cli
+#
+# Once the application has started, the command to get the CLI prompt is:
+#	telnet 0.0.0.0 8086
+
+pipeline codegen ./calc.spec ./calc.c
+pipeline libbuild ./calc.c ./calc.so
+
+mempool MEMPOOL0 meta 0 pkt 2176 pool 32K cache 256 numa 0
+ethdev 0000:04:00.0 rxq 1 128 MEMPOOL0 txq 1 512 promiscuous on
+ethdev 0000:04:00.1 rxq 1 128 MEMPOOL0 txq 1 512 promiscuous on
+
+pipeline PIPELINE0 build lib ./calc.so io ./ethdev.io numa 0
+
+pipeline PIPELINE0 table calculate add ./table.txt
+pipeline PIPELINE0 commit
+
+pipeline PIPELINE0 enable thread 1
