@@ -48,6 +48,11 @@ struct set_direction_arg_t {
 struct metadata_t {
 	bit<32> pna_main_input_metadata_direction
 	bit<32> pna_main_input_metadata_input_port
+	bit<8> local_metadata_direction
+	bit<32> local_metadata_reg_pos_one
+	bit<32> local_metadata_reg_pos_two
+	bit<8> local_metadata_reg_val_one
+	bit<8> local_metadata_reg_val_two
 	bit<32> pna_main_output_metadata_output_port
 	bit<8> MainControlT_tmp
 	bit<8> MainControlT_tmp_0
@@ -72,11 +77,6 @@ struct metadata_t {
 	bit<16> MainControlT_tmp_20
 	bit<16> MainControlT_tmp_21
 	bit<8> MainControlT_tmp_22
-	bit<32> MainControlT_reg_pos_one
-	bit<32> MainControlT_reg_pos_two
-	bit<8> MainControlT_reg_val_one
-	bit<8> MainControlT_reg_val_two
-	bit<8> MainControlT_direction
 	bit<32> MainControlT_ip_addr1
 	bit<32> MainControlT_ip_addr2
 	bit<16> MainControlT_port1
@@ -108,13 +108,12 @@ action drop_1 args none {
 action ipv4_fwd args instanceof ipv4_fwd_arg_t {
 	mov h.ethernet.src_addr t.ethernet_src_addr
 	mov h.ethernet.dst_addr t.ethernet_dst_addr
-	add h.ipv4.ttl 0xFF
 	mov m.pna_main_output_metadata_output_port t.port_out
 	return
 }
 
 action set_direction args instanceof set_direction_arg_t {
-	mov m.MainControlT_direction t.dir
+	mov m.local_metadata_direction t.dir
 	return
 }
 
@@ -157,9 +156,9 @@ apply {
 	MAINPARSERIMPL_ACCEPT :	jmpneq LABEL_END m.pna_main_input_metadata_direction 0x0
 	table ipv4_table
 	jmpnv LABEL_END h.tcp
-	mov m.MainControlT_direction 0x0
+	mov m.local_metadata_direction 0x0
 	table check_ports
-	jmpneq LABEL_FALSE_1 m.MainControlT_direction 0x1
+	jmpneq LABEL_FALSE_1 m.local_metadata_direction 0x1
 	mov m.MainControlT_ip_addr1 h.ipv4.src_addr
 	mov m.MainControlT_ip_addr2 h.ipv4.dst_addr
 	mov m.MainControlT_port1 h.tcp.srcPort
@@ -169,21 +168,21 @@ apply {
 	mov m.MainControlT_tmp_5 m.MainControlT_port1
 	mov m.MainControlT_tmp_6 m.MainControlT_port2
 	mov m.MainControlT_tmp_7 h.ipv4.protocol
-	hash jhash m.MainControlT_reg_pos_one  m.MainControlT_tmp_3 m.MainControlT_tmp_7
-	and m.MainControlT_reg_pos_one 0xFFF
-	add m.MainControlT_reg_pos_one 0x0
+	hash jhash m.local_metadata_reg_pos_one  m.MainControlT_tmp_3 m.MainControlT_tmp_7
+	and m.local_metadata_reg_pos_one 0xFFF
+	add m.local_metadata_reg_pos_one 0x0
 	mov m.MainControlT_tmp_8 m.MainControlT_ip_addr1
 	mov m.MainControlT_tmp_9 m.MainControlT_ip_addr2
 	mov m.MainControlT_tmp_10 m.MainControlT_port1
 	mov m.MainControlT_tmp_11 m.MainControlT_port2
 	mov m.MainControlT_tmp_12 h.ipv4.protocol
-	hash crc32 m.MainControlT_reg_pos_two  m.MainControlT_tmp_8 m.MainControlT_tmp_12
-	and m.MainControlT_reg_pos_two 0xFFF
-	add m.MainControlT_reg_pos_two 0x0
-	regrd m.MainControlT_reg_val_one bloom_filter m.MainControlT_reg_pos_one
-	regrd m.MainControlT_reg_val_two bloom_filter_0 m.MainControlT_reg_pos_two
-	jmpneq LABEL_TRUE_2 m.MainControlT_reg_val_one 0x1
-	jmpneq LABEL_TRUE_2 m.MainControlT_reg_val_two 0x1
+	hash crc32 m.local_metadata_reg_pos_two  m.MainControlT_tmp_8 m.MainControlT_tmp_12
+	and m.local_metadata_reg_pos_two 0xFFF
+	add m.local_metadata_reg_pos_two 0x0
+	regrd m.local_metadata_reg_val_one bloom_filter m.local_metadata_reg_pos_one
+	regrd m.local_metadata_reg_val_two bloom_filter_0 m.local_metadata_reg_pos_two
+	jmpneq LABEL_TRUE_2 m.local_metadata_reg_val_one 0x1
+	jmpneq LABEL_TRUE_2 m.local_metadata_reg_val_two 0x1
 	jmp LABEL_END
 	LABEL_TRUE_2 :	drop
 	jmp LABEL_END
@@ -193,7 +192,7 @@ apply {
 	and m.MainControlT_tmp_0 0x1
 	mov m.MainControlT_tmp_1 m.MainControlT_tmp_0
 	and m.MainControlT_tmp_1 0x1
-	jmpneq LABEL_END m.MainControlT_direction 0x0
+	jmpneq LABEL_END m.local_metadata_direction 0x0
 	jmpneq LABEL_END m.MainControlT_tmp_1 0x1
 	mov m.MainControlT_ip_addr1_0 h.ipv4.dst_addr
 	mov m.MainControlT_ip_addr2_0 h.ipv4.src_addr
@@ -204,24 +203,23 @@ apply {
 	mov m.MainControlT_tmp_15 m.MainControlT_port1_0
 	mov m.MainControlT_tmp_16 m.MainControlT_port2_0
 	mov m.MainControlT_tmp_17 h.ipv4.protocol
-	hash jhash m.MainControlT_reg_pos_one  m.MainControlT_tmp_13 m.MainControlT_tmp_17
-	and m.MainControlT_reg_pos_one 0xFFF
-	add m.MainControlT_reg_pos_one 0x0
+	hash jhash m.local_metadata_reg_pos_one  m.MainControlT_tmp_13 m.MainControlT_tmp_17
+	and m.local_metadata_reg_pos_one 0xFFF
+	add m.local_metadata_reg_pos_one 0x0
 	mov m.MainControlT_tmp_18 m.MainControlT_ip_addr1_0
 	mov m.MainControlT_tmp_19 m.MainControlT_ip_addr2_0
 	mov m.MainControlT_tmp_20 m.MainControlT_port1_0
 	mov m.MainControlT_tmp_21 m.MainControlT_port2_0
 	mov m.MainControlT_tmp_22 h.ipv4.protocol
-	hash crc32 m.MainControlT_reg_pos_two  m.MainControlT_tmp_18 m.MainControlT_tmp_22
-	and m.MainControlT_reg_pos_two 0xFFF
-	add m.MainControlT_reg_pos_two 0x0
-	regwr bloom_filter m.MainControlT_reg_pos_one 0x1
-	regwr bloom_filter_0 m.MainControlT_reg_pos_two 0x1
+	hash crc32 m.local_metadata_reg_pos_two  m.MainControlT_tmp_18 m.MainControlT_tmp_22
+	and m.local_metadata_reg_pos_two 0xFFF
+	add m.local_metadata_reg_pos_two 0x0
+	regwr bloom_filter m.local_metadata_reg_pos_one 0x1
+	regwr bloom_filter_0 m.local_metadata_reg_pos_two 0x1
 	LABEL_END :	emit h.ethernet
 	emit h.ipv4
-	jmpnv LABEL_END_4 h.tcp
 	emit h.tcp
-	LABEL_END_4 :	tx m.pna_main_output_metadata_output_port
+	tx m.pna_main_output_metadata_output_port
 }
 
 

@@ -50,6 +50,11 @@ header tcp_t{
 }
 
 struct metadata_t {
+    bit<8> direction;
+    bit<32> reg_pos_one;
+    bit<32> reg_pos_two;
+    bit<8> reg_val_one;
+    bit<8> reg_val_two;
 }
 
 struct headers_t {
@@ -107,16 +112,16 @@ control MainControlImpl(
     Hash<bit<32>>(PNA_HashAlgorithm_t.CRC32) hash_crc32;
     Register<bit<8>, bit<32>>((bit<32>) 4096, (bit<8>) 0) bloom_filter_1;
     Register<bit<8>, bit<32>>((bit<32>) 4096, (bit<8>) 0) bloom_filter_2;
-    bit<32> reg_pos_one; bit<32> reg_pos_two;
-    bit<8> reg_val_one; bit<8> reg_val_two;
-    bit<8> direction;
+    // bit<32> reg_pos_one; bit<32> reg_pos_two;
+    // bit<8> reg_val_one; bit<8> reg_val_two;
+    // bit<8> direction;
 
     action drop() {
         drop_packet();
     }
 
     action compute_hashes(bit<32> ip_addr1, bit<32> ip_addr2, bit<16> port1, bit<16> port2) {
-        reg_pos_one = hash_jhash.get_hash(
+        meta.reg_pos_one = hash_jhash.get_hash(
             (bit<32>) 0,
             {
                 ip_addr1,
@@ -128,7 +133,7 @@ control MainControlImpl(
             (bit<32>) 4096
         );
 
-        reg_pos_two = hash_crc32.get_hash(
+        meta.reg_pos_two = hash_crc32.get_hash(
             (bit<32>) 0,
             {
                 ip_addr1,
@@ -148,7 +153,7 @@ control MainControlImpl(
     ) {
         hdrs.ethernet.src_addr = ethernet_src_addr;
         hdrs.ethernet.dst_addr = ethernet_dst_addr;
-        hdrs.ipv4.ttl = hdrs.ipv4.ttl - 1;
+        // hdrs.ipv4.ttl = hdrs.ipv4.ttl - 1;
         send_to_port((PortId_t) port_out);
     }
 
@@ -165,7 +170,7 @@ control MainControlImpl(
     }
 
     action set_direction(bit<8> dir) {
-        direction = dir;
+        meta.direction = dir;
     }
 
     table check_ports {
@@ -186,19 +191,19 @@ control MainControlImpl(
         if (istd.direction == PNA_Direction_t.NET_TO_HOST) {
             ipv4_table.apply();
             if (hdrs.tcp.isValid()) {
-                direction =  DIRECTION_OUT;
+                meta.direction =  DIRECTION_OUT;
                 check_ports.apply();
-                if (direction == DIRECTION_IN) {
+                if (meta.direction == DIRECTION_IN) {
                     compute_hashes(hdrs.ipv4.src_addr, hdrs.ipv4.dst_addr, hdrs.tcp.srcPort, hdrs.tcp.dstPort);
-                    reg_val_one = bloom_filter_1.read(reg_pos_one);
-                    reg_val_two = bloom_filter_2.read(reg_pos_two);
-                    if (reg_val_one != 1 || reg_val_two != 1) {
+                    meta.reg_val_one = bloom_filter_1.read(meta.reg_pos_one);
+                    meta.reg_val_two = bloom_filter_2.read(meta.reg_pos_two);
+                    if (meta.reg_val_one != 1 || meta.reg_val_two != 1) {
                         drop();
                     }
-                } else if (direction == DIRECTION_OUT && hdrs.tcp.syn == 1) {
+                } else if (meta.direction == DIRECTION_OUT && hdrs.tcp.syn == 1) {
                     compute_hashes(hdrs.ipv4.dst_addr, hdrs.ipv4.src_addr, hdrs.tcp.dstPort, hdrs.tcp.srcPort);
-                    bloom_filter_1.write(reg_pos_one, 1);
-                    bloom_filter_2.write(reg_pos_two, 1);
+                    bloom_filter_1.write(meta.reg_pos_one, 1);
+                    bloom_filter_2.write(meta.reg_pos_two, 1);
                 }
             }
         }
@@ -214,8 +219,7 @@ control MainDeparserImpl(
 	apply {
         pkt.emit(hdrs.ethernet);
         pkt.emit(hdrs.ipv4);
-        if (hdrs.tcp.isValid())
-            pkt.emit(hdrs.tcp);
+        pkt.emit(hdrs.tcp);
 	}
 }
 
