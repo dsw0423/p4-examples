@@ -66,7 +66,6 @@ action compute_hash args none {
 }
 
 action fwd args instanceof fwd_arg_t {
-	add h.ipv4.ttl 0xFF
 	mov h.ipv4.dst_addr t.ipv4_dst_addr
 	mov h.ethernet.dst_addr t.ethernet_dst_addr
 	mov h.ethernet.src_addr t.ethernet_src_addr

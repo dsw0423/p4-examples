@@ -89,7 +89,7 @@ control MainControlImpl(
             {   hdrs.ipv4.src_addr,
                 hdrs.ipv4.dst_addr,
                 hdrs.ipv4.protocol,
-                hdrs.ethernet. src_addr,
+                hdrs.ethernet.src_addr,
                 hdrs.ethernet.dst_addr },
             (bit<32>) 2
         );
@@ -101,7 +101,7 @@ control MainControlImpl(
         bit<32> ipv4_dst_addr,
         PortId_t port_out
     ) {
-        hdrs.ipv4.ttl = hdrs.ipv4.ttl - 1;
+        // hdrs.ipv4.ttl = hdrs.ipv4.ttl - 1;
         hdrs.ipv4.dst_addr = ipv4_dst_addr;
         hdrs.ethernet.dst_addr = ethernet_dst_addr;
         hdrs.ethernet.src_addr = ethernet_src_addr;
