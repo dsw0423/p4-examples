@@ -1,2 +1,2 @@
-match 0xa0369fd8978a action l2fwd port_out 0
-match 0xa0369fd8978b action l2fwd port_out 1
+match 0xe0be037efcd2 action l2fwd port_out 0
+match 0x2cf05dbff540 action l2fwd port_out 1

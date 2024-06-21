@@ -10,6 +10,7 @@ pipeline libbuild ./load_balance.c ./load_balance.so
 mempool MEMPOOL0 meta 0 pkt 2176 pool 64K cache 256 numa 0
 ethdev 0000:04:00.0 rxq 1 128 MEMPOOL0 txq 1 512 promiscuous on
 ethdev 0000:04:00.1 rxq 1 128 MEMPOOL0 txq 1 512 promiscuous on
+ethdev 0000:05:00.1 rxq 1 128 MEMPOOL0 txq 1 512 promiscuous on
 
 pipeline PIPELINE0 build lib ./load_balance.so io ./ethdev.io numa 0
 

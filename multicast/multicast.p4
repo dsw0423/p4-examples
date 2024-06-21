@@ -63,6 +63,10 @@ control MainControlImpl(
         will be send back to port 0, and mirror (clone) to port 1.
      */
     action multicast() {
+        send_to_port((PortId_t) 0);
+        mirror_packet((MirrorSlotId_t) 0, (MirrorSessionId_t) 1); // session 1 -> port 1
+
+/*
         if (istd.input_port == (PortId_t) 0) {
             send_to_port((PortId_t) 0);
             mirror_packet((MirrorSlotId_t) 0, (MirrorSessionId_t) 1); // session 1 -> port 1
@@ -71,6 +75,7 @@ control MainControlImpl(
             send_to_port((PortId_t) 1);
             mirror_packet((MirrorSlotId_t) 0, (MirrorSessionId_t) 2); // session 2 -> port 0
         }
+*/
     }
 
     action l2_fwd(PortId_t port_out) {

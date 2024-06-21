@@ -1,2 +1,2 @@
-match 0x0 action fwd ethernet_dst_addr 0xa0369fd8978a ethernet_src_addr 0xa0369fd89736 ipv4_dst_addr 0x0a000101 port_out 0
-match 0x1 action fwd ethernet_dst_addr 0xa0369fd8978b ethernet_src_addr 0xa0369fd89737 ipv4_dst_addr 0x0a000202 port_out 1
+match 0x0 action fwd ethernet_dst_addr 0xe0be037efcd2 ethernet_src_addr 0xa0369fd89736 ipv4_dst_addr 0x0a000202 port_out 0
+match 0x1 action fwd ethernet_dst_addr 0x2cf05dbff540 ethernet_src_addr 0xa0369fd89737 ipv4_dst_addr 0x0a000101 port_out 1

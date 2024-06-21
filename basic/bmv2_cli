@@ -1,0 +1,4 @@
+table_add ingress.ipv4_table ingress.ipv4_fwd 10.0.1.1 => 2c:f0:5d:bf:f5:40 a0:36:9f:d8:97:37 1
+
+table_add ingress.ipv4_table ingress.ipv4_fwd 10.0.2.2 => e0:be:03:7e:fc:d2 a0:36:9f:d8:97:36 0
+
